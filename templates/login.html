@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Login</title>
+    <style>
+        .form input[type=button],
+        .form input[type=submit],
+        .form input[type=reset] {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            text-decoration: none;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="form">
+            <form class="register-form" method="POST" enctype="multipart/form-data">
+                <input type="text" name="email" placeholder="Email" />
+                <input type="password" name="password" placeholder="Password" />
+                <input type="text" name="first_name" placeholder="First Name" />
+                <input type="text" name="last_name" placeholder="Last Name" />
+                <!-- <input type="file" name="profile_pic" value='Add a profile picture'> -->
+                <input type="submit" formaction="{{url_for('signup')}}" value="Create">
+                <p class="message">Already registered? <a href="#">Sign In</a></p>
+            </form>
+            <form class="login-form" method="POST">
+                <input type="text" name="email" placeholder="Email" />
+                <input type="password" name="password" placeholder="Password" />
+                <input type="submit" formaction="{{url_for('login')}}" value="Submit">
+                <p class="message">Not registered? <a href="#">Create an account</a></p>
+            </form>
+        </div>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="/static/js/login.js"></script>
+
+</html>

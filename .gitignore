@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Flask
+app.db
+
+#vscode
+.vscode

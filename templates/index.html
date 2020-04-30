@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %} {{user.name}} {% endblock %}
+
+{% block content %}
+
+<style>
+    .message_div {
+        overflow-y: scroll;
+        width: 500px;
+        max-height: 200px;
+    }
+
+    .message {
+        width: auto;
+        min-height: 50px;
+        padding: 20px;
+        border-radius: 3px;
+        background-color: white;
+        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+</style>
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+        var socket = io.connect('http://127.0.0.1:5000/');
+
+        $('#send_button').on('click', () => {
+            my_obj = {
+                "username": "{{user.name}}",
+                "message": $("#my_message").val()
+            };
+            if (my_obj.message) {
+                console.log(my_obj)
+                $('#my_message').val('');
+                socket.emit('message', my_obj);
+            }
+        })
+
+        $(document).keypress((event) => {
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                my_obj = {
+                    "username": "{{user.name}}",
+                    "message": $("#my_message").val()
+                };
+                if (my_obj.message) {
+                    console.log(my_obj)
+                    $('#my_message').val('');
+                    socket.emit('message', my_obj);
+                }
+            }
+        })
+
+        socket.on('connect', () => {
+            console.log('Connected');
+        });
+
+        socket.on('message', (message) => {
+            user = message.username
+            msg = message.message
+            if (msg) {
+                template = `<div class='message' style="text-align: right;">
+                    <div style='text-align: left;
+                    display: block;'>
+                        ` + user + `:
+                    </div>
+                    <div style='text-align: right; display: inline;'>
+                        ` + msg + `
+                    </div>
+                </div>`
+                $("#message_div").append(template);
+                var element = document.getElementById("message_div");
+                element.scrollTop = element.scrollHeight;
+            }
+        })
+
+    });
+</script>
+
+<div class="card">
+    <div class="firstinfo">
+        <img src="{{user.get_profile_picture()}}">
+        <div class="profileinfo">
+            <h1>{{user.name}}</h1>
+            <h3>Python Ninja</h3>
+            <div class="bio">
+                <p class="bio" id="bio">
+                    {{user.get_bio()}}
+                </p>
+            </div>
+
+        </div>
+        <div class='edit_icon'>
+            <a href="{{url_for('change_profile')}}">
+                <img src="https://cdn1.iconfinder.com/data/icons/social-messaging-ui-color/254000/52-512.png"
+                    style="border-radius: 50%; width: 50px; height: 50px;">
+            </a>
+        </div>
+    </div>
+</div>
+<div class="message_div" id="message_div">
+    <div class='message' style="text-align: right;">
+        {{user.name}} logged in
+    </div>
+</div>
+<div class="send_message">
+    <input type="text" name="my_message" id="my_message">
+    <button id='send_button'>Send</button>
+</div>
+{% endblock %}
