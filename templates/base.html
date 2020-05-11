@@ -6,11 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{url_for('static', filename='/css/index.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='/css/sidenav.css')}}">
 </head>
 
 <body>
+    <div class="sidenav">
+        <div class="add_friend">
+            <form action="{{url_for('add_friend')}}" method="post">
+                <input type="text" name="email" id="">
+                <input type="submit" value="Add friend">
+            </form>
+        </div>
+        <div class="friend_bar">
+            {% for friend in user.friends %}
+            <button href="{{url_for('send_private_message')}}">{{friend.name}}</a>
+                {% endfor %}
+        </div>
+    </div>
     <div class="content">
-
         {% block content %} {% endblock %}
     </div>
 </body>
