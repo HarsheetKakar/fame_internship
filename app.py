@@ -32,6 +32,8 @@ def load_user(id):
 
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
@@ -39,6 +41,22 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(300), nullable=False)
     profile_picture = db.Column(db.String(200))
     bio = db.Column(db.String(500))
+
+    # Assosiation table for friends
+    friends_tree = db.Table(
+        'friends_tree',
+        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+        db.Column('friends_id', db.Integer, db.ForeignKey('user.id'))
+    )
+
+    friends = db.relationship(
+        'User',
+        secondary=friends_tree,
+        primaryjoin=(friends_tree.c.user_id == id),
+        secondaryjoin=(friends_tree.c.friends_id == id),
+        backref=db.backref('friend', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
     @property
     def name(self):
@@ -68,6 +86,9 @@ class User(UserMixin, db.Model):
     def get_bio(self):
         return self.bio if self.bio else "Enter Bio"
 
+    def add_friend(self, user):
+        self.friends.append(user)
+
 
 db.create_all()
 
@@ -75,6 +96,7 @@ db.create_all()
 @app.route('/')
 @app.route('/index/')
 def index():
+    # TODO: add friend list (clickable)
     if current_user.is_authenticated:
         first_name = current_user.first_name
         last_name = current_user.last_name
@@ -95,6 +117,21 @@ def change_profile():
             db.session.commit()
             return redirect(url_for('index'))
         return render_template('profile.html', user=current_user)
+
+
+@app.route('/add_friend', methods=['GET', 'POST'])
+def add_friend():
+    if current_user.is_authenticated:
+        if request.method == 'POST':
+            email = request.form['email']
+            user = User.query.filter_by(email=email).first()
+            if(user):
+                current_user.add_friend(user)
+                db.session.commit()
+                return redirect(url_for('index'))
+            else:
+                flash("User not found")
+                return redirect(url_for('index'))
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -132,6 +169,7 @@ def signup():
 
 @socketio.on('message')
 def on_message(msg):
+    # TODO: add single friend message
     print(f"message recieved {msg}")
     send(msg, broadcast=True)
 
